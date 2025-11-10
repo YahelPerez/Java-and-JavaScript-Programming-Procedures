@@ -1,0 +1,46 @@
+{
+  "name": "reservation-system-graph-visualization",
+  "version": "2.0.0",
+  "description": "Sprint 2: Graph visualization module for displaying nearby cities and distances with Jest testing",
+  "main": "src/graph/Graph.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:verbose": "jest --verbose"
+  },
+  "keywords": [
+    "graph",
+    "visualization",
+    "cities",
+    "distances",
+    "jest",
+    "testing"
+  ],
+  "author": "YahelPerez",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.test.js",
+      "!src/**/demo.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 90,
+        "lines": 90,
+        "statements": 90
+      }
+    },
+    "testMatch": [
+      "**/__tests__/**/*.js",
+      "**/?(*.)+(spec|test).js"
+    ]
+  }
+}
