@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Status Check</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px;
+            background: white;
+        }
+        .section { 
+            border: 1px solid #ccc; 
+            padding: 15px; 
+            margin: 10px 0;
+            background: #f9f9f9;
+        }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .loading { background: #fff3cd; border-color: #ffeaa7; }
+    </style>
+</head>
+<body>
+    <h1>Frontend Diagnosis</h1>
+    <div id="status">Loading...</div>
+    <div id="api-test"></div>
+    <div id="data-display"></div>
+
+    <script>
+        async function diagnose() {
+            const statusDiv = document.getElementById('status');
+            const apiDiv = document.getElementById('api-test');
+            const dataDiv = document.getElementById('data-display');
+            
+            statusDiv.innerHTML = '<div class="loading section">🔍 Running diagnostics...</div>';
+
+            // Test API connectivity
+            let reservationsData = null;
+            let citiesData = null;
+
+            // Test Spring Boot API
+            try {
+                const response = await fetch('http://localhost:8080/api/reservations');
+                if (response.ok) {
+                    reservationsData = await response.json();
+                    apiDiv.innerHTML += '<div class="success section">✅ Spring Boot API (8080): Connected - ' + reservationsData.length + ' reservations found</div>';
+                } else {
+                    apiDiv.innerHTML += '<div class="error section">❌ Spring Boot API (8080): HTTP ' + response.status + '</div>';
+                }
+            } catch (error) {
+                apiDiv.innerHTML += '<div class="error section">❌ Spring Boot API (8080): ' + error.message + '</div>';
+            }
+
+            // Test Express.js API
+            try {
+                const response = await fetch('http://localhost:3001/api/cities');
+                if (response.ok) {
+                    citiesData = await response.json();
+                    apiDiv.innerHTML += '<div class="success section">✅ Express.js API (3001): Connected - ' + citiesData.length + ' cities found</div>';
+                } else {
+                    apiDiv.innerHTML += '<div class="error section">❌ Express.js API (3001): HTTP ' + response.status + '</div>';
+                }
+            } catch (error) {
+                apiDiv.innerHTML += '<div class="error section">❌ Express.js API (3001): ' + error.message + '</div>';
+            }
+
+            // Display data
+            if (reservationsData) {
+                dataDiv.innerHTML += '<div class="section"><h3>Reservations Data:</h3><pre>' + JSON.stringify(reservationsData.slice(0, 3), null, 2) + '</pre></div>';
+            }
+            
+            if (citiesData) {
+                dataDiv.innerHTML += '<div class="section"><h3>Cities Data:</h3><pre>' + JSON.stringify(citiesData.slice(0, 5), null, 2) + '</pre></div>';
+            }
+
+            statusDiv.innerHTML = '<div class="success section">✅ Diagnosis complete</div>';
+        }
+
+        // Run diagnosis
+        diagnose();
+    </script>
+</body>
+</html>

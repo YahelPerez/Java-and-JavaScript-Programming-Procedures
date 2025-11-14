@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Probando APIs</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPIs() {
+            const resultsDiv = document.getElementById('results');
+            
+            // Test Spring Boot API
+            try {
+                const response = await fetch('http://localhost:8080/api/reservations');
+                const data = await response.json();
+                resultsDiv.innerHTML += '<h2>Spring Boot API (8080) - FUNCIONANDO ✅</h2>';
+                resultsDiv.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                resultsDiv.innerHTML += '<h2>Spring Boot API (8080) - ERROR ❌</h2>';
+                resultsDiv.innerHTML += '<p>' + error.message + '</p>';
+            }
+            
+            // Test Express.js API
+            try {
+                const response = await fetch('http://localhost:3001/api/cities');
+                const data = await response.json();
+                resultsDiv.innerHTML += '<h2>Express.js API (3001) - FUNCIONANDO ✅</h2>';
+                resultsDiv.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                resultsDiv.innerHTML += '<h2>Express.js API (3001) - ERROR ❌</h2>';
+                resultsDiv.innerHTML += '<p>' + error.message + '</p>';
+            }
+        }
+        
+        testAPIs();
+    </script>
+</body>
+</html>

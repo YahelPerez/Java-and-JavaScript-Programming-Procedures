@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Base de Datos MySQL</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+        }
+        .success { background: #4CAF50; }
+        .error { background: #f44336; }
+        .loading { background: #ff9800; }
+        .refresh-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .refresh-btn:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>🗄️ Base de Datos MySQL - reservation_graph_system</h1>
+    
+    <div class="container">
+        <h2>🏙️ Tabla: cities</h2>
+        <button class="refresh-btn" onclick="loadCities()">🔄 Actualizar Ciudades</button>
+        <div id="cities-status"></div>
+        <table id="cities-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Fecha Creación</th>
+                    <th>Última Actualización</th>
+                </tr>
+            </thead>
+            <tbody id="cities-body">
+                <tr><td colspan="4">Cargando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container">
+        <h2>📏 Tabla: distances</h2>
+        <button class="refresh-btn" onclick="loadDistances()">🔄 Actualizar Distancias</button>
+        <div id="distances-status"></div>
+        <table id="distances-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ciudad Origen</th>
+                    <th>Ciudad Destino</th>
+                    <th>Distancia (km)</th>
+                    <th>Tiempo Estimado</th>
+                </tr>
+            </thead>
+            <tbody id="distances-body">
+                <tr><td colspan="5">Cargando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container">
+        <h2>📋 Tabla: reservations</h2>
+        <button class="refresh-btn" onclick="loadReservations()">🔄 Actualizar Reservas</button>
+        <div id="reservations-status"></div>
+        <table id="reservations-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Fecha Reserva</th>
+                    <th>Estado</th>
+                    <th>Huéspedes</th>
+                    <th>Creado</th>
+                </tr>
+            </thead>
+            <tbody id="reservations-body">
+                <tr><td colspan="6">Cargando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Cargar ciudades desde MySQL
+        async function loadCities() {
+            const statusDiv = document.getElementById('cities-status');
+            const tbody = document.getElementById('cities-body');
+            
+            statusDiv.innerHTML = '<span class="status loading">🔄 Cargando ciudades...</span>';
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/cities');
+                const cities = await response.json();
+                
+                statusDiv.innerHTML = `<span class="status success">✅ ${cities.length} ciudades cargadas desde MySQL</span>`;
+                
+                tbody.innerHTML = cities.map(city => `
+                    <tr>
+                        <td>${city.id}</td>
+                        <td>${city.name}</td>
+                        <td>${new Date(city.created_at).toLocaleString()}</td>
+                        <td>${new Date(city.updated_at).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status error">❌ Error al cargar ciudades</span>';
+                tbody.innerHTML = `<tr><td colspan="4">Error: ${error.message}</td></tr>`;
+            }
+        }
+
+        // Cargar distancias desde MySQL
+        async function loadDistances() {
+            const statusDiv = document.getElementById('distances-status');
+            const tbody = document.getElementById('distances-body');
+            
+            statusDiv.innerHTML = '<span class="status loading">🔄 Cargando distancias...</span>';
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/distances');
+                const distances = await response.json();
+                
+                statusDiv.innerHTML = `<span class="status success">✅ ${distances.length} distancias cargadas desde MySQL</span>`;
+                
+                tbody.innerHTML = distances.map(distance => `
+                    <tr>
+                        <td>${distance.id}</td>
+                        <td>${distance.from_city || distance.from_city_id}</td>
+                        <td>${distance.to_city || distance.to_city_id}</td>
+                        <td>${distance.distance_km} km</td>
+                        <td>${distance.estimated_travel_time || 'N/A'}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status error">❌ Error al cargar distancias</span>';
+                tbody.innerHTML = `<tr><td colspan="5">Error: ${error.message}</td></tr>`;
+            }
+        }
+
+        // Cargar reservaciones (si el Spring Boot está corriendo)
+        async function loadReservations() {
+            const statusDiv = document.getElementById('reservations-status');
+            const tbody = document.getElementById('reservations-body');
+            
+            statusDiv.innerHTML = '<span class="status loading">🔄 Cargando reservas...</span>';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/reservations');
+                const reservations = await response.json();
+                
+                statusDiv.innerHTML = `<span class="status success">✅ ${reservations.length} reservas cargadas desde MySQL</span>`;
+                
+                tbody.innerHTML = reservations.map(reservation => `
+                    <tr>
+                        <td>${reservation.id}</td>
+                        <td>${reservation.customerName || reservation.customer_name}</td>
+                        <td>${reservation.reservationDate || reservation.reservation_date}</td>
+                        <td>${reservation.status}</td>
+                        <td>${reservation.numberOfGuests || reservation.party_size}</td>
+                        <td>${reservation.created_at ? new Date(reservation.created_at).toLocaleString() : 'N/A'}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status error">❌ Spring Boot API no disponible</span>';
+                tbody.innerHTML = `<tr><td colspan="6">Spring Boot no está corriendo en puerto 8080</td></tr>`;
+            }
+        }
+
+        // Cargar datos al inicio
+        window.addEventListener('load', () => {
+            loadCities();
+            loadDistances();
+            loadReservations();
+        });
+
+        // Auto-refresh cada 30 segundos
+        setInterval(() => {
+            loadCities();
+            loadDistances();
+        }, 30000);
+    </script>
+</body>
+</html>
